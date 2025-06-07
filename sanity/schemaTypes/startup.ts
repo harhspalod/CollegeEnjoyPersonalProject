@@ -59,5 +59,49 @@ export const startup = defineType({
       title: "Full Pitch / Details",
       type: "markdown",
     }),
+    {
+      name: 'likes',
+      title: 'Likes',
+      type: 'array',
+      of: [{ type: 'string' }],
+    },
+    defineField({
+      name: "joinRequests",
+      title: "Join Requests",
+      type: "array",
+      of: [{ type: "string" }],
+    }
+    ),
+    
+    defineField({
+      name: "teamMembers",
+      title: "Team Members",
+      type: "array",
+      of: [{ type: "string" }], // approved user IDs
+    }),
+    defineField({
+      name: "Views",
+      title: "Views",
+      type: "number",
+      initialValue: 0,
+    }),
+    
+
+
+    {
+      name: 'comments',
+      title: 'Comments',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            { name: 'userId', type: 'string', title: 'User ID' },
+            { name: 'text', type: 'string', title: 'Comment Text' },
+            { name: 'timestamp', type: 'datetime', title: 'Timestamp' },
+          ],
+        },
+      ],
+    },
   ],
 });

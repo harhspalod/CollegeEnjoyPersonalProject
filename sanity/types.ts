@@ -125,6 +125,49 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
+export type Confession = {
+  _id: string;
+  _type: "confession";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  to?: string;
+  from?: string;
+  message?: string;
+  timestamp?: string;
+  approved?: boolean;
+};
+
+export type Group = {
+  _id: string;
+  _type: "group";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  description?: string;
+  owner?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "author";
+  };
+  members?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "author";
+  }>;
+  pendingRequests?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "author";
+  }>;
+};
+
 export type Playlist = {
   _id: string;
   _type: "playlist";
@@ -162,6 +205,16 @@ export type Startup = {
   projectLink?: string;
   image?: string;
   pitch?: string;
+  likes?: Array<string>;
+  joinRequests?: Array<string>;
+  teamMembers?: Array<string>;
+  Views?: number;
+  comments?: Array<{
+    userId?: string;
+    text?: string;
+    timestamp?: string;
+    _key: string;
+  }>;
 };
 
 export type Slug = {
@@ -182,9 +235,10 @@ export type Author = {
   email?: string;
   image?: string;
   bio?: string;
+  followers?: Array<string>;
 };
 
 export type Markdown = string;
 
-export type AllSanitySchemaTypes = SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | SanityAssetSourceData | Playlist | Startup | Slug | Author | Markdown;
+export type AllSanitySchemaTypes = SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | SanityAssetSourceData | Confession | Group | Playlist | Startup | Slug | Author | Markdown;
 export declare const internalGroqTypeReferenceTo: unique symbol;

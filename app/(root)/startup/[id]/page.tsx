@@ -8,11 +8,11 @@ import { notFound } from "next/navigation";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
-
 import markdownit from "markdown-it";
 import { Skeleton } from "@/components/ui/skeleton";
 import View from "@/components/View";
 import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
+import CommentSection from "@/components/CommentSection";
 
 const md = markdownit();
 
@@ -70,10 +70,24 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
               </div>
             </Link>
 
-            <p className="category-tag">{post.category}</p>
+            <div className="flex items-center gap-4">
+              <p className="category-tag">{post.category}</p>
+              <form
+                action={`/api/startup/${post._id}/like`}
+                method="POST"
+                className="inline"
+              >
+                <button
+                  type="submit"
+                  className="text-sm px-3 py-1 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200"
+                >
+                  ❤️ {post.likes?.length || 0}
+                </button>
+              </form>
+            </div>
           </div>
 
-          <h3 className="text-30-bold">Pitch Details</h3>
+          <h3 className="text-30-bold">Project Details</h3>
           {parsedContent ? (
             <article
               className="prose max-w-4xl font-work-sans break-all"
@@ -85,7 +99,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
           {post.helpNeeded && (
             <div>
-              <h3 className="text-24-semibold mt-8">Help Needed</h3>
+              <h3 className="text-24-semibold mt-8">Team Help Needed</h3>
               <p className="text-16-regular mt-2 whitespace-pre-line">
                 {post.helpNeeded}
               </p>
@@ -94,7 +108,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
           {post.projectLink && (
             <div>
-              <h3 className="text-24-semibold mt-8">Project Link</h3>
+              <h3 className="text-24-semibold mt-8">Project Resource Link</h3>
               <a
                 href={post.projectLink}
                 target="_blank"
@@ -109,10 +123,11 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
         <hr className="divider" />
 
+        <CommentSection startupId={post._id} initialComments={post.comments || []} />
+
         {editorPosts?.length > 0 && (
           <div className="max-w-4xl mx-auto">
-            <p className="text-30-semibold">Editor Picks</p>
-
+            <p className="text-30-semibold">Editor's Featured Projects</p>
             <ul className="mt-7 card_grid-sm">
               {editorPosts.map((post: StartupTypeCard, i: number) => (
                 <StartupCard key={i} post={post} />

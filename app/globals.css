@@ -219,3 +219,8 @@
 .w-md-editor-toolbar {
   padding: 10px !important;
 }
+/* Hide any injected sentry feedback UI */
+iframe[src*="sentry.io"] {
+  display: none !important;
+}
+

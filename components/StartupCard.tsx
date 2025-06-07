@@ -1,3 +1,5 @@
+"use client";
+
 import { cn, formatDate } from "@/lib/utils";
 import { EyeIcon, ExternalLink, GitBranch } from "lucide-react";
 import Link from "next/link";
@@ -5,6 +7,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Author, Startup } from "@/sanity/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 export type StartupTypeCard = Omit<Startup, "author"> & {
   author?: Author;
@@ -13,34 +17,71 @@ export type StartupTypeCard = Omit<Startup, "author"> & {
 const StartupCard = ({ post }: { post: StartupTypeCard }) => {
   const {
     _createdAt,
-    views,
     author,
     title,
     category,
     _id,
     image,
     description,
-    helpNeeded,       // 👈 add this
-    projectLink,      // 👈 add this
-    pitch             // optional
+    helpNeeded,
+    projectLink,
+    pitch,
+    likes = [],
+    views,
   } = post;
-  
+
+  const { data: session } = useSession();
+  const userId = session?.user?.id || "guest";
+
+  const [likeCount, setLikeCount] = useState(likes.length);
+  const [liking, setLiking] = useState(false);
+  const [alreadyLiked, setAlreadyLiked] = useState(false);
+
+  useEffect(() => {
+    if (userId && likes.includes(userId)) {
+      setAlreadyLiked(true);
+    }
+  }, [userId, likes]);
+
+  const handleLike = async () => {
+    if (!userId || userId === "guest") return alert("Please log in to like.");
+    if (alreadyLiked) return alert("You already liked this post.");
+
+    try {
+      setLiking(true);
+      const res = await fetch(`/api/startup/${_id}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setLikeCount(data.likes);
+        setAlreadyLiked(true);
+      } else {
+        alert(data.message || "Already liked!");
+      }
+    } catch (err) {
+      console.error("Error liking post:", err);
+    } finally {
+      setLiking(false);
+    }
+  };
 
   return (
     <li className="startup-card group">
-      {/* Top metadata */}
       <div className="flex-between">
         <p className="startup_card_date">{formatDate(_createdAt)}</p>
         <div className="flex gap-1.5 items-center">
           <EyeIcon className="size-5 text-primary" />
-          <span className="text-14-medium">{views}</span>
+          <span className="text-sm text-muted-foreground">{views ?? 0}</span>
         </div>
       </div>
 
-      {/* Author + Title */}
       <div className="flex-between mt-4 gap-5">
         <div className="flex-1">
-          {author && (
+          {author?._id && (
             <Link href={`/user/${author._id}`}>
               <p className="text-16-medium line-clamp-1">{author.name}</p>
             </Link>
@@ -62,7 +103,6 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
         )}
       </div>
 
-      {/* Description */}
       <Link href={`/startup/${_id}`}>
         <p className="startup-card_desc line-clamp-3 mt-3">{description}</p>
         {image && (
@@ -74,21 +114,18 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
         )}
       </Link>
 
-      {/* Pitch Preview */}
       {pitch && (
         <p className="mt-3 text-14-regular text-muted-foreground line-clamp-2">
-          💡 <span className="font-medium">Pitch:</span> {pitch}
+          💡 <span className="font-medium">Project:</span> {pitch}
         </p>
       )}
 
-      {/* Help Needed */}
       {helpNeeded && (
         <p className="mt-2 text-14-medium text-pink-600">
-          🤝 <span className="font-medium">Help Needed:</span> {helpNeeded}
+          🤝 <span className="font-medium">Team Needed:</span> {helpNeeded}
         </p>
       )}
 
-      {/* Project Link */}
       {projectLink && (
         <div className="mt-2">
           <a
@@ -98,13 +135,30 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
             className="flex items-center gap-1 text-14-medium text-blue-600 underline"
           >
             <GitBranch className="size-4" />
-            View Project
+            View Resource
             <ExternalLink className="size-4 ml-1" />
           </a>
         </div>
       )}
 
-      {/* Footer */}
+      <div className="mt-4 flex items-center gap-3">
+        <button
+          onClick={handleLike}
+          disabled={liking || alreadyLiked}
+          className={cn(
+            "flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium",
+            alreadyLiked
+              ? "bg-green-100 text-green-600 cursor-not-allowed"
+              : liking
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-pink-100 text-pink-600 hover:bg-pink-200"
+          )}
+        >
+          ❤️ {alreadyLiked ? "Liked" : liking ? "Liking..." : "Like"}
+        </button>
+        <span className="text-sm text-muted-foreground">{likeCount} Likes</span>
+      </div>
+
       <div className="flex-between gap-3 mt-5">
         <Link href={`/?query=${category?.toLowerCase()}`}>
           <p className="text-14-medium text-muted-foreground capitalize">
@@ -112,7 +166,7 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
           </p>
         </Link>
         <Button className="startup-card_btn" asChild>
-          <Link href={`/startup/${_id}`}>Details</Link>
+          <Link href={`/startup/${_id}`}>View Project</Link>
         </Button>
       </div>
     </li>

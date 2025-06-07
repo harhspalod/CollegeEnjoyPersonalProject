@@ -1,5 +1,5 @@
-import StartupForm from "@/components/StartupForm";
 import { auth } from "@/auth";
+import ConfessionForm from "@/components/confessionForm";
 import { redirect } from "next/navigation";
 
 const Page = async () => {
@@ -10,10 +10,10 @@ const Page = async () => {
   return (
     <>
       <section className="pink_container !min-h-[230px]">
-        <h1 className="heading">Submit Your Projects</h1>
+        <h1 className="heading">Submit Your Confession</h1>
       </section>
 
-      <StartupForm />
+      <ConfessionForm />
     </>
   );
 };

@@ -21,21 +21,22 @@ export default async function Home({
   return (
     <>
       <section className="pink_container">
-        <h1 className="heading">
-          Pitch Your Startup, <br />
-          Connect With Entrepreneurs 
-        </h1>
+      <h1 className="heading">
+  Pitch, Collaborate, or Confess  <br />
+  All in One Place
+</h1>
 
-        <p className="sub-heading !max-w-3xl">
-        Submit your startup, vote and comment on others. Every week, the most liked startup gets a chance to pitch their idea!
-        </p>
+<p className="sub-heading !max-w-3xl">
+  Whether you're starting a project, forming a hackathon team, or just want to share a thought — post it here, get support, and grow with the community.
+</p>
+
 
         <SearchForm query={query} />
       </section>
 
       <section className="section_container">
         <p className="text-30-semibold">
-          {query ? `Search results for "${query}"` : "All Startups"}
+          {query ? `Search results for "${query}"` : "All Projects"}
         </p>
 
         <ul className="mt-7 card_grid">
@@ -44,7 +45,7 @@ export default async function Home({
               <StartupCard key={post?._id} post={post} />
             ))
           ) : (
-            <p className="no-results">No startups found</p>
+            <p className="no-results">No Projects found</p>
           )}
         </ul>
       </section>

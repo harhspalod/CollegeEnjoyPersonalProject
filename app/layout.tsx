@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import "easymde/dist/easymde.min.css";
 import { Toaster } from "@/components/ui/toaster";
+import { SessionProvider } from "next-auth/react";
 
 const workSans = localFont({
   src: [
@@ -67,10 +68,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+             <SessionProvider>
+          
+        
+
       <body className={workSans.variable}>
         {children}
         <Toaster />
       </body>
+      </SessionProvider>
     </html>
   );
 }
