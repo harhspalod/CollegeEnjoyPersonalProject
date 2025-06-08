@@ -33,15 +33,16 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
   const { data: session } = useSession();
   const userId = session?.user?.id || "guest";
 
-  const [likeCount, setLikeCount] = useState(likes.length);
+  const [likeCount, setLikeCount] = useState(likes?.length ?? 0);
   const [liking, setLiking] = useState(false);
   const [alreadyLiked, setAlreadyLiked] = useState(false);
 
   useEffect(() => {
-    if (userId && likes.includes(userId)) {
+    if (userId && Array.isArray(likes) && likes.includes(userId)) {
       setAlreadyLiked(true);
     }
   }, [userId, likes]);
+  
 
   const handleLike = async () => {
     if (!userId || userId === "guest") return alert("Please log in to like.");

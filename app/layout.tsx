@@ -68,15 +68,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-             <SessionProvider>
-          
-        
-
       <body className={workSans.variable}>
-        {children}
-        <Toaster />
+        <SessionProvider>
+          {children}
+          <Toaster />
+        </SessionProvider>
       </body>
-      </SessionProvider>
     </html>
   );
 }

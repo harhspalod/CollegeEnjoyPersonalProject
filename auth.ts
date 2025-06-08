@@ -4,28 +4,17 @@ import { AUTHOR_BY_GITHUB_ID_QUERY } from "@/sanity/lib/queries";
 import { client } from "@/sanity/lib/client";
 import { writeClient } from "@/sanity/lib/write-client";
 
-// Define the GitHub profile structure
-interface GitHubProfile {
-  id: string;
-  login: string;
-  bio?: string;
-}
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [GitHub],
   callbacks: {
-    async signIn({ user: { name, email, image }, profile }) {
-      const githubProfile = profile as GitHubProfile;
-      const { id, login, bio } = githubProfile;
-
-      const existingUser = await client
-        .withConfig({ useCdn: false })
-        .fetch(AUTHOR_BY_GITHUB_ID_QUERY, { id });
+    async signIn({ user: { name, email, image }, profile: { id, login, bio } }) {
+      const existingUser = await client.fetch(AUTHOR_BY_GITHUB_ID_QUERY, {
+        username: login,
+      });
 
       if (!existingUser) {
         await writeClient.create({
           _type: "author",
-          _id: id,          
           name,
           username: login,
           email,
@@ -39,13 +28,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
     async jwt({ token, account, profile }) {
       if (account && profile) {
-        const { id } = profile as unknown as GitHubProfile;
+        try {
+          const user = await client
+            .withConfig({ useCdn: false })
+            .fetch(AUTHOR_BY_GITHUB_ID_QUERY, { username: profile.login });
 
-        const user = await client
-          .withConfig({ useCdn: false })
-          .fetch(AUTHOR_BY_GITHUB_ID_QUERY, { id });
-
-        token.id = user?._id;
+          if (user?._id) {
+            token.id = user._id; // ✅ correct place to set ID
+          }
+        } catch (error) {
+          console.error("JWT error:", error);
+        }
       }
 
       return token;
@@ -56,6 +49,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
       }
       return session;
-    },
+    }
+    ,
   },
 });

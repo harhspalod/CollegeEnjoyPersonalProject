@@ -194,10 +194,12 @@ export type Startup = {
   title?: string;
   slug?: Slug;
   author?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "author";
+    _id: string;
+    _type: "author";
+    name: string;
+    username: string;
+    image?: string;
+    bio?: string;
   };
   description?: string;
   category?: string;
@@ -205,7 +207,15 @@ export type Startup = {
   projectLink?: string;
   image?: string;
   pitch?: string;
-  likes?: Array<string>;
+  likes?: Array<{
+    _type: "reference";
+    _ref: string;
+  }> | Array<{
+    _id: string;
+    name: string;
+    username: string;
+    image?: string;
+  }>; // support both reference and populated forms
   joinRequests?: Array<string>;
   teamMembers?: Array<string>;
   Views?: number;
@@ -216,6 +226,7 @@ export type Startup = {
     _key: string;
   }>;
 };
+
 
 export type Slug = {
   _type: "slug";
@@ -229,7 +240,6 @@ export type Author = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  id?: number;
   name?: string;
   username?: string;
   email?: string;
